@@ -4,18 +4,36 @@
 <%transactions=Transaction.all%>
 <ol> 
 <%for tx in transactions%>
-<%from_userid=tx["from_user_id"]%>
-<%to_userid=tx["from_user_id"]%>
-<%from_user_name=User.find_by({"id"=>from_userid})%>
-<%to_user_name=User.find_by({"id"=>to_userid})%>
-<%tx_amt=tx["amount"]%> 
-<% if from_userid%>
-<li><%=tx_amt%> KC from <%=to_user_name["name"]%> to <%=to_user_name["name"]%> </li>
-<%else %>
-<li>Initial coin offering: <%=tx_amt%> to <%=to_user_name["name"]%></li>
+  <%from_userid=tx["from_user_id"]%>
+  <%to_userid=tx["to_user_id"]%>
+  <%from_user_name=User.find_by({"id"=>from_userid})%>
+  <%to_user_name=User.find_by({"id"=>to_userid})%>
+  <%tx_amt=tx["amount"]%> 
+  <% if from_userid%>
+  <li><%=tx_amt%> KC from <%=from_user_name["name"]%> to <%=to_user_name["name"]%> </li>
+  <%else%>
+  <li>Initial coin offering: <%=tx_amt%> to <%=to_user_name["name"]%></li>
+  <%end%>
 <%end%>
 </ol>
 <!-- Step 2: Calculate and display the balances -->
+<h1>Balances:</h1>
+<%users=User.all%>
+<table>
+  <tr>
+    <th>User</th>
+    <th>KC Balance</th>
+  </tr>
+  <%for person in users %>
+    <%total_in=Transaction.where({ "to_user_id" => person["id"] }).sum("amount")%>
+    <%total_out=Transaction.where({ "from_user_id" => person["id"] }).sum("amount")%>
+    <%total=total_in-total_out%>
+  <tr>
+    <td><%=person["name"]%></td>
+    <td><%=total%></td>
+  </tr>
+  <%end%>
+</table>
 
 <!-- 
 Expected balances:
